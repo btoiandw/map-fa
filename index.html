@@ -5,136 +5,85 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>เลือกตำแหน่งที่ตั้ง</title>
+
+  <script src="https://static.line-scdn.net/liff/sdk/v2/liff.js"></script>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/style.css">
   <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+
+  <style>
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: calc(100% - 70px);
+    }
+
+    .toolbar {
+      font-size: 16px;
+      height: 70px;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #888;
+      background: #f7f7f7;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #007bff;
+      color: #fff;
+      border-color: #0069d9;
+    }
+
+    .coords {
+      font-size: 14px;
+    }
+
+    .flex-right {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+    }
+
+    .mo-mp {
+      color: red;
+      align-items: center;
+      display: flex;
+      text-align: center;
+    }
+
+    /* (โค้ด CSS ส่วนที่เหลือของคุณ) */
+    dialog {
+      border: 1px solid #888;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  </style>
 </head>
-<style>
-  body,
-  html {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-
-  #map {
-    height: calc(100% - 70px);
-  }
-
-  .toolbar {
-    font-size: 16px;
-    height: 70px;
-    padding: 10px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    background: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-  }
-
-  .btn {
-    font-size: 16px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #888;
-    background: #f7f7f7;
-    cursor: pointer;
-  }
-
-  .btn.primary {
-    background: #007bff;
-    color: #fff;
-    border-color: #0069d9;
-  }
-
-  .coords {
-    font-size: 14px;
-  }
-
-  .flex-right {
-    margin-left: auto;
-    display: flex;
-    gap: 6px;
-  }
-
-  .mo-mp {
-    color: red;
-    align-items: center;
-    display: flex;
-    text-align: center;
-  }
-
-  /* Basic modal styles */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-
-  /* Modal content styles */
-  .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation-name: modalFadeIn;
-    animation-duration: 0.4s;
-  }
-
-  /* Close button styles */
-  .close-btn {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .close-btn:hover,
-  .close-btn:focus {
-    color: #000;
-    text-decoration: none;
-  }
-
-  /* Fade-in animation */
-  @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-50px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Style the dialog element */
-  dialog {
-    border: 1px solid #888;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Style the native backdrop */
-  dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-</style>
 
 <body>
   <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
   <div class="toolbar">
     <div class="coords" id="coords">Lat: — , Lng: — </div>
     <div class="mo-mp">คลิกที่บริเวณที่ต้องการสอบถาม</div>
@@ -143,8 +92,8 @@
       <button class="btn primary" id="sendBtn">ส่งตำแหน่งที่ตั้ง</button>
     </div>
   </div>
-  <button onclick="document.getElementById('dialogModal').showModal()">Open Dialog</button>
 
+  <button onclick="document.getElementById('dialogModal').showModal()">Open Dialog</button>
   <dialog id="dialogModal">
     <h2>Native Dialog Modal</h2>
     <p>This is a more modern approach to creating a modal.</p>
@@ -154,11 +103,10 @@
   <div id="map"></div>
 
 
-
-
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <script>
+    // --- ส่วนที่ 1: การตั้งค่าแผนที่ (เหมือนเดิม) ---
     const qs = (name, fallback) => new URL(location.href).searchParams.get(name) || fallback;
 
     const defaultLat = parseFloat(qs('lat', '16.48014010030842'));
@@ -167,8 +115,8 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);//แมพได้แค่ Street View เท่านั้น ถ้าเป็นตัวอื่นจะเสียตังเพิ่ม
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
     const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
     const coordsEl = document.getElementById('coords');
@@ -181,111 +129,59 @@
     marker.on('dragend', () => updateCoords(marker.getLatLng()));
     map.on('click', e => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
 
-   
+    // --- ส่วนที่ 2: การเชื่อมต่อ LIFF (โค้ดใหม่ที่ปลอดภัย) ---
 
-   // document.getElementById('sendBtn').onclick = async () => {
-     // const ll = marker.getLatLng();
-      // ดึง 's' (ที่เราตั้งค่ามาจาก Workflow 1) ออกจาก URL
-      // --- เพิ่มส่วน DEBUG ---
-     // const urlParams = new URLSearchParams(window.location.search);
-      //console.log('URL Search Params:', window.location.search); // <-- เพิ่มบรรทัดนี้
-     // const userId = urlParams.get('s');
-//
-  //    console.log('Found userId:', userId); // <-- เพิ่มบรรทัดนี้
-      // --- จบส่วน DEBUG ---
-    //  const payload = {
-      //  lat: ll.lat,
-      //  lng: ll.lng,
-      //  ts: new Date().toISOString(),
-      //  userId: userId
-     // };
-     // console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
+    // ** (เราลบ 'accessToken' และ 'apiUrl' ออกไปแล้ว) **
 
-      //const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook-test/8b4373bf-eed6-4e66-959f-39f702a969cf'; // 👈 เปลี่ยนตรงนี้
-
-      const accessToken = "BV+Qp//fYAas91TIVV8fQrJ7bt/IdwmJIQBsmPB6Z97POIYldVYCvSaFcwc1WQ1GMo+cfcSdo1F/KbICeLtsDIMRTOa9e8Io1DPQACcNnw3ni0eTdxjY4iUhPhpYeNdXTd/27WChctldklNM4j49NgdB04t89/1O/w1cDnyilFU="; // << ใส่ Token ของคุณ
-      const apiUrl = "https://api.line.me/v2/bot/message/push";
-
+    liff.init({
+      // *** สำคัญมาก: ใส่ LIFF ID ที่คุณเพิ่งคัดลอกมาที่นี่ ***
+      liffId: '2008381581-WY0BxEBw' 
+    })
+    .then(() => {
+      // เมื่อ LIFF พร้อมใช้งาน ให้ผูกปุ่ม 'sendBtn'
       document.getElementById('sendBtn').onclick = async () => {
-        const ll = marker.getLatLng();
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('s');
-        console.log(userId);
-
-        if (!userId) {
-          alert("❌ ไม่พบ userId ใน URL (ต้องมีพารามิเตอร์ ?s=Uxxxxxx)");
+        
+        // ตรวจสอบว่าเปิดใน LINE หรือไม่
+        if (!liff.isInClient()) {
+          alert("กรุณาเปิดหน้านี้ผ่านแอป LINE เท่านั้น");
           return;
         }
 
-        const message = {
-          to: userId,
-          messages: [
-            {
-              type: "text",
-              text: `📍 ได้รับตำแหน่งจากคุณแล้วครับ!\nLat: ${ll.lat.toFixed(6)}\nLng: ${ll.lng.toFixed(6)}\n\nดูตำแหน่งใน Google Maps:\nhttps://www.google.com/maps?q=${ll.lat},${ll.lng}`
-            }
-          ]
-        };
+        const ll = marker.getLatLng();
+        const googleMapsUrl = `https://maps.google.com/?q=${ll.lat},${ll.lng}`;
+
+        // เตรียมข้อความที่จะส่งกลับ
+        const messages = [
+          {
+            type: "text",
+            text: `📍 ได้รับตำแหน่งจากคุณแล้วครับ!\nLat: ${ll.lat.toFixed(6)}\nLng: ${ll.lng.toFixed(6)}\n\nดูตำแหน่งใน Google Maps:\n${googleMapsUrl}`
+          },
+          {
+            type: "location",
+            title: "ตำแหน่งที่เลือก",
+            address: `Lat: ${ll.lat.toFixed(6)}, Lng: ${ll.lng.toFixed(6)}`,
+            latitude: ll.lat,
+            longitude: ll.lng
+          }
+        ];
 
         try {
-          const resp = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(message)
-          });
-
-          if (resp.ok) {
-            alert("✅ ส่งตำแหน่งกลับไปที่ LINE เรียบร้อยแล้ว!");
-          } else {
-            const err = await resp.text();
-            alert("❌ ส่งไม่สำเร็จ:\n" + err);
-          }
+          // ส่งข้อความกลับไปที่ห้องแชท
+          await liff.sendMessages(messages);
+          alert("ส่งตำแหน่งเรียบร้อย!");
+          
+          // ปิดหน้าต่าง LIFF หลังจากส่งสำเร็จ
+          liff.closeWindow();
         } catch (err) {
-          alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ:\n" + err);
+          alert("เกิดข้อผิดพลาดในการส่งข้อความ: " + err);
         }
       };
-      // try {
-      // const resp = await fetch(webhookUrl, {
-      // method: 'POST',
-      //headers: { 'Content-Type': 'application/json' },
-      //body: JSON.stringify(payload)
-      //});
-      // alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
-      // } catch {
-      // alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
-      // }
-      // };
-
-      // Get necessary elements
-      const modal = document.getElementById("myModal");
-      const openBtn = document.getElementById("openModalBtn");
-      const closeBtn = document.querySelector(".close-btn");
-
-      // Open modal function
-      function openModal() {
-        modal.style.display = "block";
-      }
-
-      // Close modal function
-      function closeModal() {
-        modal.style.display = "none";
-      }
-
-      // Event listeners
-      openBtn.addEventListener("click", openModal);
-      closeBtn.addEventListener("click", closeModal);
-
-      // Close when clicking outside the modal content
-      window.addEventListener("click", function (event) {
-        if (event.target === modal) {
-          closeModal();
-        }
-      });
+    })
+    .catch((err) => {
+      console.error("LIFF Initialization failed", err);
+      alert("การเชื่อมต่อ LIFF ล้มเหลว: " + err.message);
+    });
 
   </script>
 </body>
-
 </html>
