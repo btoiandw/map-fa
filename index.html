@@ -140,8 +140,6 @@
     <div class="mo-mp">คลิกที่บริเวณที่ต้องการสอบถาม</div>
 
     <div class="flex-right">
-      <button class="btn" id="copyBtn">คัดลอกพิกัด</button>
-      <button class="btn" id="shareBtn">สร้างลิงก์แชร์</button>
       <button class="btn primary" id="sendBtn">ส่งตำแหน่งที่ตั้ง</button>
     </div>
   </div>
@@ -183,75 +181,109 @@
     marker.on('dragend', () => updateCoords(marker.getLatLng()));
     map.on('click', e => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
 
-    document.getElementById('copyBtn').onclick = async () => {
-      const ll = marker.getLatLng();
-      await navigator.clipboard.writeText(`${ll.lat},${ll.lng}`);
-      alert('คัดลอกพิกัดแล้ว!');
-    };
+   
 
-    document.getElementById('shareBtn').onclick = () => {
-      const ll = marker.getLatLng();
-      const url = `${location.origin}${location.pathname}?lat=${ll.lat}&lng=${ll.lng}`;
-      navigator.share ? navigator.share({ url }) : prompt('คัดลอกลิงก์นี้:', url);
-    };
-
-    document.getElementById('sendBtn').onclick = async () => {
-      const ll = marker.getLatLng();
+   // document.getElementById('sendBtn').onclick = async () => {
+     // const ll = marker.getLatLng();
       // ดึง 's' (ที่เราตั้งค่ามาจาก Workflow 1) ออกจาก URL
       // --- เพิ่มส่วน DEBUG ---
-      const urlParams = new URLSearchParams(window.location.search);
-      console.log('URL Search Params:', window.location.search); // <-- เพิ่มบรรทัดนี้
-      const userId = urlParams.get('s');
-
-      console.log('Found userId:', userId); // <-- เพิ่มบรรทัดนี้
+     // const urlParams = new URLSearchParams(window.location.search);
+      //console.log('URL Search Params:', window.location.search); // <-- เพิ่มบรรทัดนี้
+     // const userId = urlParams.get('s');
+//
+  //    console.log('Found userId:', userId); // <-- เพิ่มบรรทัดนี้
       // --- จบส่วน DEBUG ---
-      const payload = {
-        lat: ll.lat,
-        lng: ll.lng,
-        ts: new Date().toISOString(),
-        userId: userId
+    //  const payload = {
+      //  lat: ll.lat,
+      //  lng: ll.lng,
+      //  ts: new Date().toISOString(),
+      //  userId: userId
+     // };
+     // console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
+
+      //const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook-test/8b4373bf-eed6-4e66-959f-39f702a969cf'; // 👈 เปลี่ยนตรงนี้
+
+      const accessToken = "BV+Qp//fYAas91TIVV8fQrJ7bt/IdwmJIQBsmPB6Z97POIYldVYCvSaFcwc1WQ1GMo+cfcSdo1F/KbICeLtsDIMRTOa9e8Io1DPQACcNnw3ni0eTdxjY4iUhPhpYeNdXTd/27WChctldklNM4j49NgdB04t89/1O/w1cDnyilFU="; // << ใส่ Token ของคุณ
+      const apiUrl = "https://api.line.me/v2/bot/message/push";
+
+      document.getElementById('sendBtn').onclick = async () => {
+        const ll = marker.getLatLng();
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('s');
+        console.log(userId);
+
+        if (!userId) {
+          alert("❌ ไม่พบ userId ใน URL (ต้องมีพารามิเตอร์ ?s=Uxxxxxx)");
+          return;
+        }
+
+        const message = {
+          to: userId,
+          messages: [
+            {
+              type: "text",
+              text: `📍 ได้รับตำแหน่งจากคุณแล้วครับ!\nLat: ${ll.lat.toFixed(6)}\nLng: ${ll.lng.toFixed(6)}\n\nดูตำแหน่งใน Google Maps:\nhttps://www.google.com/maps?q=${ll.lat},${ll.lng}`
+            }
+          ]
+        };
+
+        try {
+          const resp = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(message)
+          });
+
+          if (resp.ok) {
+            alert("✅ ส่งตำแหน่งกลับไปที่ LINE เรียบร้อยแล้ว!");
+          } else {
+            const err = await resp.text();
+            alert("❌ ส่งไม่สำเร็จ:\n" + err);
+          }
+        } catch (err) {
+          alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ:\n" + err);
+        }
       };
-      console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
+      // try {
+      // const resp = await fetch(webhookUrl, {
+      // method: 'POST',
+      //headers: { 'Content-Type': 'application/json' },
+      //body: JSON.stringify(payload)
+      //});
+      // alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
+      // } catch {
+      // alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
+      // }
+      // };
 
-      const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook-test/8b4373bf-eed6-4e66-959f-39f702a969cf'; // 👈 เปลี่ยนตรงนี้
+      // Get necessary elements
+      const modal = document.getElementById("myModal");
+      const openBtn = document.getElementById("openModalBtn");
+      const closeBtn = document.querySelector(".close-btn");
 
-      try {
-        const resp = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
-      } catch {
-        alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
+      // Open modal function
+      function openModal() {
+        modal.style.display = "block";
       }
-    };
 
-    // Get necessary elements
-    const modal = document.getElementById("myModal");
-    const openBtn = document.getElementById("openModalBtn");
-    const closeBtn = document.querySelector(".close-btn");
-
-    // Open modal function
-    function openModal() {
-      modal.style.display = "block";
-    }
-
-    // Close modal function
-    function closeModal() {
-      modal.style.display = "none";
-    }
-
-    // Event listeners
-    openBtn.addEventListener("click", openModal);
-    closeBtn.addEventListener("click", closeModal);
-
-    // Close when clicking outside the modal content
-    window.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        closeModal();
+      // Close modal function
+      function closeModal() {
+        modal.style.display = "none";
       }
-    });
+
+      // Event listeners
+      openBtn.addEventListener("click", openModal);
+      closeBtn.addEventListener("click", closeModal);
+
+      // Close when clicking outside the modal content
+      window.addEventListener("click", function (event) {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
 
   </script>
 </body>
